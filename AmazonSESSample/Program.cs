@@ -8,28 +8,26 @@ namespace AmazonSESSample
 {
     class Program
     {
-        // Replace sender@example.com with your "From" address.
-        // This address must be verified with Amazon SES.
-        static readonly string senderAddress = "emailtestinn123@gmail.com";
+        
+        static readonly string senderAddress = "srujanasrujju646@gmail.com";
 
-        // Replace recipient@example.com with a "To" address. If your account
-        // is still in the sandbox, this address must be verified.
-        static readonly string receiverAddress = "srujanasrujju646@gmail.com";
+        
+        static readonly string receiverAddress = "emailtestinn123@gmail.com";
 
         // The configuration set to use for this email. If you do not want to use a
         // configuration set, comment out the following property and the
         // ConfigurationSetName = configSet argument below. 
        // static readonly string configSet = "ConfigSet";
 
-        // The subject line for the email.
+        
         static readonly string subject = "Amazon SES test (AWS SDK for .NET)";
 
-        // The email body for recipients with non-HTML email clients.
+        
         static readonly string textBody = "Amazon SES Test (.NET)\r\n"
                                         + "This email was sent through Amazon SES "
                                         + "using the AWS SDK for .NET.";
 
-        // The HTML body of the email.
+        
         static readonly string htmlBody = @"<html>
         <head></head>
          <body>
@@ -43,12 +41,21 @@ namespace AmazonSESSample
 
         static void Main(string[] args)
         {
-            // Replace USWest2 with the AWS Region you're using for Amazon SES.
-            // Acceptable values are EUWest1, USEast1, and USWest2.
-            using (var client = new AmazonSimpleEmailServiceClient(RegionEndpoint.USWest2))
+            var watch = new System.Diagnostics.Stopwatch();
+
+            watch.Start();
+            List<string> Subject = new List<string>();
+
+            for (int i = 1; i <= 3; i++)
             {
-                var sendRequest = new SendEmailRequest
-                {
+                Subject.Add(i + receiverAddress);
+            }
+            foreach (var item in Subject)
+            {
+               using (var client = new AmazonSimpleEmailServiceClient(RegionEndpoint.USWest2))
+               {
+                 var sendRequest = new SendEmailRequest
+                 {
                     Source = senderAddress,
                     Destination = new Destination
                     {
@@ -57,7 +64,7 @@ namespace AmazonSESSample
                     },
                     Message = new Message
                     {
-                        Subject = new Content(subject),
+                        Subject = new Content(subject + " hhh "),
                         Body = new Body
                         {
                             Html = new Content
@@ -75,20 +82,26 @@ namespace AmazonSESSample
                     // If you are not using a configuration set, comment
                     // or remove the following line 
                     //ConfigurationSetName = configSet
-                };
-                try
-                {
+                 };
+                  try
+                  {
+
                     Console.WriteLine("Sending email using Amazon SES...");
-                    var response = client.SendEmailAsync(sendRequest);
+                    var response = client.SendEmail(sendRequest);
                     Console.WriteLine("The email was sent successfully.");
-                }
-                catch (Exception ex)
-                {
+                  }
+                 catch (Exception ex)
+                  {
                     Console.WriteLine("The email was not sent.");
                     Console.WriteLine("Error message: " + ex.Message);
 
-                }
+                  }
+               }
             }
+           
+            watch.Stop();
+
+            Console.WriteLine($"It Took {watch.ElapsedMilliseconds} ms to email ");
 
             Console.Write("Press any key to continue...");
             Console.ReadKey();
