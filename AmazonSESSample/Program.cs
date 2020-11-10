@@ -19,10 +19,7 @@ namespace AmazonSESSample
         // ConfigurationSetName = configSet argument below. 
        // static readonly string configSet = "ConfigSet";
 
-        
-        static readonly string subject = "Amazon SES test (AWS SDK for .NET)";
-
-        
+       
         static readonly string textBody = "Amazon SES Test (.NET)\r\n"
                                         + "This email was sent through Amazon SES "
                                         + "using the AWS SDK for .NET.";
@@ -44,67 +41,67 @@ namespace AmazonSESSample
             var watch = new System.Diagnostics.Stopwatch();
 
             watch.Start();
-            List<string> Subject = new List<string>();
 
-            for (int i = 1; i <= 3; i++)
+            using (var client = new AmazonSimpleEmailServiceClient(RegionEndpoint.USWest2))
             {
-                Subject.Add(i + receiverAddress);
-            }
-            foreach (var item in Subject)
-            {
-               using (var client = new AmazonSimpleEmailServiceClient(RegionEndpoint.USWest2))
-               {
-                 var sendRequest = new SendEmailRequest
-                 {
-                    Source = senderAddress,
-                    Destination = new Destination
+
+                for (int i = 1; i <= 100; i++)
+                {
+
+                    var subject = $"Amazon test {i}";
+                    var sendRequest = new SendEmailRequest
                     {
-                        ToAddresses =
-                        new List<string> { receiverAddress }
-                    },
-                    Message = new Message
-                    {
-                        Subject = new Content(subject + " hhh "),
-                        Body = new Body
+                        Source = senderAddress,
+                        Destination = new Destination
                         {
-                            Html = new Content
+                            ToAddresses =
+                           new List<string> { receiverAddress }
+                        },
+                        Message = new Message
+                        {
+                            Subject = new Content(subject),
+                            Body = new Body
                             {
-                                Charset = "UTF-8",
-                                Data = htmlBody
-                            },
-                            Text = new Content
-                            {
-                                Charset = "UTF-8",
-                                Data = textBody
+                                Html = new Content
+                                {
+                                    Charset = "UTF-8",
+                                    Data = htmlBody
+                                },
+                                Text = new Content
+                                {
+                                    Charset = "UTF-8",
+                                    Data = textBody
+                                }
                             }
-                        }
-                    },
-                    // If you are not using a configuration set, comment
-                    // or remove the following line 
-                    //ConfigurationSetName = configSet
-                 };
-                  try
-                  {
+                        },
+                        // If you are not using a configuration set, comment
+                        // or remove the following line 
+                        //ConfigurationSetName = configSet
+                    };
+                    try
+                    {
 
-                    Console.WriteLine("Sending email using Amazon SES...");
-                    var response = client.SendEmail(sendRequest);
-                    Console.WriteLine("The email was sent successfully.");
-                  }
-                 catch (Exception ex)
-                  {
-                    Console.WriteLine("The email was not sent.");
-                    Console.WriteLine("Error message: " + ex.Message);
+                        Console.WriteLine("Sending email using Amazon SES...");
+                        var response = client.SendEmail(sendRequest);
+                        Console.WriteLine("The email was sent successfully.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("The email was not sent.");
+                        Console.WriteLine("Error message: " + ex.Message);
 
-                  }
-               }
+                    }
+
+                }
+
+                watch.Stop();
+                TimeSpan ts = watch.Elapsed;
+
+                Console.WriteLine($"It took {ts.Seconds} seconds to send 100 emails");
+
+                Console.Write("Press any key to continue...");
+                Console.ReadKey();
             }
-           
-            watch.Stop();
-
-            Console.WriteLine($"It Took {watch.ElapsedMilliseconds} ms to email ");
-
-            Console.Write("Press any key to continue...");
-            Console.ReadKey();
         }
     }
 }
